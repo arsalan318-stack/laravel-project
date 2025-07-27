@@ -6,8 +6,8 @@
              <div class="breadcrumbs-area">
                  <ul>
                      <li><a href="#">Home</a> -</li>
-                     <li><a href="#">Electronics</a> -</li>
-                     <li class="active">Computer</li>
+                     <li><a href="#">{{ $products->category->name }}</a> -</li>
+                     <li class="active">{{ $products->subcategory->name }}</li>
                  </ul>
              </div>
          </div>
@@ -28,34 +28,41 @@
                                      </li>
                                      <li class="nav-item">
                                          <a href="#related2" data-toggle="tab" aria-expanded="false"><img alt="related2"
-                                                 src="/uploads/products/{{ $products['image2'] }}" class="img-fluid"style="height:100px;object-fit:cover;"></a>
+                                                 src="/uploads/products/{{ $products['image2'] }}"
+                                                 class="img-fluid"style="height:100px;object-fit:cover;"></a>
                                      </li>
                                      <li class="nav-item">
                                          <a href="#related3" data-toggle="tab" aria-expanded="false"><img alt="related3"
-                                                 src="/uploads/products/{{ $products['image3'] }}" class="img-fluid"style="height:100px;object-fit:cover;"></a>
+                                                 src="/uploads/products/{{ $products['image3'] }}"
+                                                 class="img-fluid"style="height:100px;object-fit:cover;"></a>
                                      </li>
                                      <li class="nav-item">
                                          <a href="#related4" data-toggle="tab" aria-expanded="false"><img alt="related4"
-                                                 src="/uploads/products/{{ $products['image3'] }}" class="img-fluid"style="height:100px;object-fit:cover;"></a>
+                                                 src="/uploads/products/{{ $products['image3'] }}"
+                                                 class="img-fluid"style="height:100px;object-fit:cover;"></a>
                                      </li>
                                  </ul>
                                  <div class="tab-content">
                                      <span class="price">{{ $products->price }}</span>
                                      <div class="tab-pane fade active show" id="related1">
                                          <a href="#" class="zoom ex1"><img alt="single"
-                                                 src="/uploads/products/{{ $products['image1'] }}" class="img-fluid"style="height:400px;object-fit:cover"></a>
+                                                 src="/uploads/products/{{ $products['image1'] }}"
+                                                 class="img-fluid"style="height:400px;object-fit:cover"></a>
                                      </div>
                                      <div class="tab-pane fade" id="related2">
                                          <a href="#" class="zoom ex1"><img alt="single"
-                                                 src="/uploads/products/{{ $products['image2'] }}" class="img-fluid"style="height:400px;object-fit:cover;"></a>
+                                                 src="/uploads/products/{{ $products['image2'] }}"
+                                                 class="img-fluid"style="height:400px;object-fit:cover;"></a>
                                      </div>
                                      <div class="tab-pane fade" id="related3">
                                          <a href="#" class="zoom ex1"><img alt="single"
-                                                 src="/uploads/products/{{ $products['image3'] }}" class="img-fluid"style="height: 400px;object-fit:cover;"></a>
+                                                 src="/uploads/products/{{ $products['image3'] }}"
+                                                 class="img-fluid"style="height: 400px;object-fit:cover;"></a>
                                      </div>
                                      <div class="tab-pane fade" id="related4">
                                          <a href="#" class="zoom ex1"><img alt="single"
-                                                 src="/uploads/products/{{ $products['image3'] }}" class="img-fluid"style="height: 400px;object-fit:cover;"></a>
+                                                 src="/uploads/products/{{ $products['image3'] }}"
+                                                 class="img-fluid"style="height: 400px;object-fit:cover;"></a>
                                      </div>
                                  </div>
                              </div>
@@ -67,7 +74,7 @@
                              <div class="row">
                                  <div class="col-lg-8 col-md-7 col-sm-12 col-12">
                                      <div class="section-title-left-primary child-size-xl">
-                                         <h3>Specification:</h3>
+                                         <h3>Features:</h3>
                                      </div>
                                      @if ($products->features)
                                          <ul class="specification-layout2 mb-40">
@@ -84,36 +91,33 @@
                                          </ul>
                                      @endif
                                  </div>
-                                 <div class="col-lg-4 col-md-5 col-sm-12 col-12 mb--sm">
-                                     <div class="section-title-left-primary child-size-xl">
-                                         <h3>Item Details:</h3>
-                                     </div>
-                                     <ul class="sidebar-item-details p-none">
-                                         <li>Condition:<span>New</span></li>
-                                         <li>Brand:<span>Apple</span></li>
-                                         <li>Color:<span>White</span></li>
-                                         <li>Warranty:<span>1 Year</span></li>
-                                         <li>
-                                             <ul class="sidebar-social">
-                                                 <li>Share:</li>
-                                                 <li><a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a>
-                                                 </li>
-                                                 <li><a href="#"><i class="fa fa-twitter" aria-hidden="true"></i></a>
-                                                 </li>
-                                                 <li><a href="#"><i class="fa fa-linkedin" aria-hidden="true"></i></a>
-                                                 </li>
-                                                 <li><a href="#"><i class="fa fa-pinterest"
-                                                             aria-hidden="true"></i></a></li>
-                                             </ul>
-                                         </li>
-                                     </ul>
-                                 </div>
+
                              </div>
                              <ul class="item-actions border-top">
-                                 <li><a href="#"><i class="fa fa-heart" aria-hidden="true"></i>Save Ad</a></li>
-                                 <li><a href="#"><i class="fa fa-share-alt" aria-hidden="true"></i>Share ad</a></li>
-                                 <li><a href="#"><i class="fa fa-exclamation-triangle"
-                                             aria-hidden="true"></i>Report abuse</a></li>
+                                @auth
+                                <button
+                                    class="btn btn-link p-0 m-0 border-0"
+                                    onclick="toggleFavorite({{ $products->id }})"
+                                    id="favorite-btn"
+                                >
+                                    @if(auth()->user()->favorites->contains($products->id))
+                                       <i class="fa fa-heart text-danger" id="favorite-icon">Save Ad</i>
+                                    @else
+                                        <i class="fa fa-heart text-muted" id="favorite-icon">Save Ad</i>
+                                    @endif
+                                </button>
+                            @else
+                                <a href="{{ route('login') }}" class="btn btn-outline-danger">
+                                    <i class="far fa-heart"></i> Add to Favorites
+                                </a>
+                            @endauth
+                            
+                                 <li><a href="#" data-toggle="modal" data-target="#shareModal"><i
+                                             class="fa fa-share-alt" aria-hidden="true" data-toggle="modal"
+                                             data-target="#shareModal"></i>Share ad</a></li>
+                                 <li><a href="#" data-toggle="modal" data-target="#reportAbuseModal"><i
+                                             class="fa fa-exclamation-triangle" aria-hidden="true" data-toggle="modal"
+                                             data-target="#reportAbuseModal"></i>Report abuse</a></li>
                              </ul>
                          </div>
                      </div>
@@ -127,13 +131,13 @@
                              <ul class="sidebar-seller-information">
                                  <li>
                                      <div class="media">
-                                        @if($products->user->image)
-                                         <img src="/uploads/profiles/{{ $products->user['image'] }}"style="width:50px"
-                                             alt="user" class="img-fluid pull-left">
-                                             @else
-                                             <img src="{{asset('img/user/user1.png')}}"style="width:50px"
-                                             alt="user" class="img-fluid pull-left">
-                                             @endif
+                                         @if ($products->user->image)
+                                             <img src="/uploads/profiles/{{ $products->user['image'] }}"style="width:50px"
+                                                 alt="user" class="img-fluid pull-left">
+                                         @else
+                                             <img src="{{ asset('img/user/user1.png') }}"style="width:50px"
+                                                 alt="user" class="img-fluid pull-left">
+                                         @endif
                                          <div class="media-body">
                                              <span>Posted By</span>
                                              <h4>{{ $products->user->name }}</h4>
@@ -146,10 +150,10 @@
                                              class="img-fluid pull-left">
                                          <div class="media-body">
                                              <span>Location</span>
-                                             @if($products->user->address)
-                                             <h4>{{ $products->user->address }}</h4>
+                                             @if ($products->user->address)
+                                                 <h4>{{ $products->user->address }}</h4>
                                              @else
-                                             <h4>N.A</h4>
+                                                 <h4>N.A</h4>
                                              @endif
                                          </div>
                                      </div>
@@ -160,10 +164,10 @@
                                              class="img-fluid pull-left">
                                          <div class="media-body">
                                              <span>Contact Number</span>
-                                             @if($products->hide_phone=='1')
-                                             <h4>**********</h4>
+                                             @if ($products->hide_phone == '1')
+                                                 <h4>**********</h4>
                                              @else
-                                             <h4>{{$products->phone}}</h4>
+                                                 <h4>{{ $products->phone }}</h4>
                                              @endif
                                          </div>
                                      </div>
@@ -174,7 +178,9 @@
                                              class="img-fluid pull-left">
                                          <div class="media-body">
                                              <span>Want To Live Chat</span>
-                                             <h4><a href="{{route('chat',['id' => $products->id,'receiverId' => $products->user_id])}}">Chat Now!</a></h4>
+                                             <h4><a
+                                                     href="{{ route('chat', ['id' => $products->id, 'receiverId' => $products->user_id]) }}">Chat
+                                                     Now!</a></h4>
                                          </div>
                                      </div>
                                  </li>
@@ -184,10 +190,10 @@
                                              class="img-fluid pull-left">
                                          <div class="media-body">
                                              <span>User Type</span>
-                                             @if($products->user->email_verified_at)
-                                             <h4>Verified</h4>
+                                             @if ($products->user->email_verified_at)
+                                                 <h4>Verified</h4>
                                              @else
-                                             <h4>Unverified</h4>
+                                                 <h4>Unverified</h4>
                                              @endif
                                          </div>
                                      </div>
@@ -195,29 +201,7 @@
                              </ul>
                          </div>
                      </div>
-                     <div class="sidebar-item-box">
-                         <div class="gradient-wrapper">
-                             <div class="gradient-title">
-                                 <h3>Item Details</h3>
-                             </div>
-                             <ul class="sidebar-item-details">
-                                 <li>Condition:<span>New</span></li>
-                                 <li>Brand:<span>Apple</span></li>
-                                 <li>Color:<span>White</span></li>
-                                 <li>Warranty:<span>1 Year</span></li>
-                                 <li>
-                                     <ul class="sidebar-social">
-                                         <li>Share:</li>
-                                         <li><a href="#"><i class="fa fa-facebook" aria-hidden="true"></i></a></li>
-                                         <li><a href="#"><i class="fa fa-twitter" aria-hidden="true"></i></a></li>
-                                         <li><a href="#"><i class="fa fa-linkedin" aria-hidden="true"></i></a></li>
-                                         <li><a href="#"><i class="fa fa-pinterest" aria-hidden="true"></i></a>
-                                         </li>
-                                     </ul>
-                                 </li>
-                             </ul>
-                         </div>
-                     </div>
+
                      <div class="sidebar-item-box">
                          <div class="gradient-wrapper">
                              <div class="gradient-title">
@@ -251,7 +235,8 @@
                                  <div class="item-mask-wrapper">
                                      <div class="item-mask secondary-bg-box">
                                          <img src="{{ asset('uploads/products/' . $ad->image1) }}"
-                                             alt="{{ $ad->title }}" class="img-fluid" style="width:100%;height:100px;object-fit:cover;">
+                                             alt="{{ $ad->title }}" class="img-fluid"
+                                             style="width:100%;height:100px;object-fit:cover;">
                                          <div class="trending-sign active" data-tips="Featured">
                                              <i class="fa fa-bolt" aria-hidden="true"></i>
                                          </div>
@@ -301,4 +286,128 @@
          </div>
      </section>
      <!-- Product Area End Here -->
+
+     <!-- Report Abuse Modal -->
+     <div class="modal fade" id="reportAbuseModal" tabindex="-1" role="dialog"
+         aria-labelledby="reportAbuseModalLabel" aria-hidden="true">
+         <div class="modal-dialog" role="document">
+             <form method="POST" action="{{ route('report.abuse') }}">
+                 @csrf
+                 <input type="hidden" name="product_id" value="{{ $products->id }}">
+                 <div class="modal-content">
+                     <div class="modal-header">
+                         <h5 class="modal-title" id="reportAbuseModalLabel">Report Abuse</h5>
+                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                             <span aria-hidden="true">&times;</span>
+                         </button>
+                     </div>
+                     <div class="modal-body">
+                         <div class="form-group">
+                             <label for="reason">Reason for reporting:</label>
+                             <select class="form-control" name="reason" required>
+                                 <option value="">Select a reason</option>
+                                 <option value="Spam">Spam</option>
+                                 <option value="Fraud">Fraud</option>
+                                 <option value="Inappropriate Content">Inappropriate Content</option>
+                                 <option value="Other">Other</option>
+                             </select>
+                         </div>
+                         <div class="form-group">
+                             <label for="details">Additional Details (optional):</label>
+                             <textarea class="form-control" name="details" rows="3"></textarea>
+                         </div>
+                     </div>
+                     <div class="modal-footer">
+                         <button type="submit" class="btn btn-danger">Submit Report</button>
+                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                     </div>
+                 </div>
+             </form>
+         </div>
+     </div>
+
+
+
+     @php
+         $url = urlencode(request()->fullUrl());
+         $title = urlencode($products->title);
+     @endphp
+
+     <!-- Share Modal -->
+     <div class="modal fade" id="shareModal" tabindex="-1" role="dialog" aria-labelledby="shareModalLabel"
+         aria-hidden="true">
+         <div class="modal-dialog modal-dialog-centered" role="document">
+             <div class="modal-content p-3">
+                 <div class="modal-header">
+                     <h5 class="modal-title" id="shareModalLabel">Share this product</h5>
+                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                         <span aria-hidden="true">&times;</span>
+                     </button>
+                 </div>
+                 <div class="modal-body d-flex flex-column gap-2">
+                     <a href="https://api.whatsapp.com/send?text={{ $title }}%20{{ $url }}"
+                         target="_blank" class="btn btn-success">
+                         <i class="fa fa-whatsapp"></i> WhatsApp
+                     </a>
+                     <a href="https://www.facebook.com/sharer/sharer.php?u={{ $url }}" target="_blank"
+                         class="btn btn-primary">
+                         <i class="fa fa-facebook-f"></i> Facebook
+                     </a>
+                     <a href="https://twitter.com/intent/tweet?url={{ $url }}&text={{ $title }}"
+                         target="_blank" class="btn btn-info">
+                         <i class="fa fa-twitter"></i> Twitter
+                     </a>
+                     <a href="mailto:?subject={{ $title }}&body=Check this out: {{ $url }}"
+                         class="btn btn-danger">
+                         <i class="fa fa-envelope"></i> Email
+                     </a>
+                     <button onclick="copyToClipboard('{{ request()->fullUrl() }}')" class="btn btn-secondary">
+                         <i class="fa fa-link"></i> Copy Link
+                     </button>
+                 </div>
+             </div>
+         </div>
+     </div>
+
+     @push('scripts')
+         <script>
+             function copyToClipboard(text) {
+                 navigator.clipboard.writeText(text).then(() => {
+                     alert('Link copied to clipboard!');
+                 }).catch(() => {
+                     alert('Failed to copy link');
+                 });
+             }
+         </script>
+
+<script>
+    function toggleFavorite(productId) {
+        fetch(`/favorites/toggle/${productId}`, {
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                'Accept': 'application/json',
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(res => res.json())
+        .then(data => {
+            const icon = document.getElementById('favorite-icon');
+            if (data.status === 'added') {
+                icon.classList.remove('far', 'text-muted');
+                icon.classList.add('fas', 'text-danger');
+            } else {
+                icon.classList.remove('fas', 'text-danger');
+                icon.classList.add('far', 'text-muted');
+            }
+        })
+        .catch(err => {
+            console.error("Favorite toggle failed:", err);
+            alert("Something went wrong.");
+        });
+    }
+    </script>
+    
+
+     @endpush
  @endsection

@@ -10,6 +10,7 @@ use App\SubCategory;
 use App\Product;
 use Stripe\Stripe;
 use Stripe\Charge;
+use App\ReportAbuse;
 use Illuminate\Support\Facades\File;
 
 
@@ -251,5 +252,43 @@ public function get_subcategory_fields($id)
 
 }
 
+public function store_report_abuse(Request $request)
+{
+    $request->validate([
+        'product_id' => 'required|exists:products,id',
+        'reason' => 'required|string|max:255',
+        'details' => 'nullable|string',
+    ]);
+
+    ReportAbuse::create([
+        'user_id' => auth()->id(),
+        'product_id' => $request->product_id,
+        'reason' => $request->reason,
+        'details' => $request->details,
+    ]);
+
+    return redirect()->back()->with('success', 'Your report has been submitted.');
+}
+
+public function toggle(Product $product)
+{
+    $user = auth()->user();
+
+    if ($user->favorites()->where('product_id', $product->id)->exists()) {
+        $user->favorites()->detach($product->id);
+        $status = 'removed';
+    } else {
+        $user->favorites()->attach($product->id);
+        $status = 'added';
+    }
+
+    return response()->json(['status' => $status]);
+}
+
+public function favorites_ad(){
+    $products = auth()->user()->favorites()->latest()->paginate(6);
+
+    return view('Users.favorites_ad',compact('products'));
+}
 
 }

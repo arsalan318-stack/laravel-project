@@ -50,6 +50,13 @@ Route::get('/get_category_products/{id}', 'UserController@get_category_products'
 Route::get('/get_product_details/{id}', 'UserController@get_product_details')->name('get_product_details');
 Route::get('/my_ads', 'UserController@my_ads')->middleware('auth')->name('my_ads');
 Route::get('/get_subcategory_fields/{id}', 'UserController@get_subcategory_fields')->name('get_subcategory_fields');
+Route::post('/report-abuse', 'UserController@store_report_abuse')->name('report.abuse');
+
+Route::middleware('auth')->group(function () {
+    Route::post('/favorites/toggle/{product}', 'UserController@toggle')->name('favorites.toggle');
+    Route::get('favorites_ad','UserController@favorites_ad')->name('favorites_ad');
+});
+
 
 
 //search

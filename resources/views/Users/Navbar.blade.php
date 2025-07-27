@@ -106,6 +106,9 @@
                                                     <a class="dropdown-item" href="{{ route('my_ads') }}">
                                                         My Ads
                                                     </a>
+                                                    <a class="dropdown-item" href="{{ route('favorites_ad') }}">
+                                                        Favorites Ads
+                                                    </a>
 
                                                     <form id="logout-form" action="{{ route('logout') }}" method="POST"
                                                         style="display: none;">

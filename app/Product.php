@@ -3,6 +3,7 @@
 namespace App;
 use App\category;
 use App\User;
+use App\SubCategory;
 
 use Illuminate\Database\Eloquent\Model;
 
@@ -22,9 +23,20 @@ class Product extends Model
     return $this->belongsTo(category::class);
 }
 
+public function subcategory()
+{
+    return $this->belongsTo(Subcategory::class);
+}
+
 public function user()
 {
     return $this->belongsTo(User::class);
 }
+
+public function favoritedBy()
+{
+    return $this->belongsToMany(User::class, 'favorites')->withTimestamps();
+}
+
 
 }
