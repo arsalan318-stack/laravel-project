@@ -8,6 +8,8 @@ use App\User;
 use App\Category;
 use App\SubCategory;
 use App\Product;
+use Stripe\Stripe;
+use Stripe\Charge;
 use Illuminate\Support\Facades\File;
 
 
@@ -15,7 +17,7 @@ class UserController extends Controller
 {
     public function index(){
         $newProducts = Product::orderBy('id', 'desc')->where('status','=','active')->take(6)->get();
-        $featuredProducts = Product::where('type', 'featured')->where('status','=','active')->get();
+        $featuredProducts = Product::where('is_premium', '1')->where('status','=','active')->get();
         $randomProducts = Product::inRandomOrder()->where('status','=','active')->limit(6)->get();        
         return view('Users.index',compact('newProducts','featuredProducts','randomProducts'));
     }
@@ -85,7 +87,6 @@ class UserController extends Controller
         'seller_name' => 'required|string|max:255',
         'phone' => 'required',
         'location' => 'required',
-        //'ad_type' => 'required',
         'payment_method' => 'required',
         'images.*' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
     ]);
@@ -103,8 +104,29 @@ class UserController extends Controller
     $ad->phone = $request->phone;
     $ad->hide_phone = $request->has('hide_phone');
     $ad->location = $request->location;
-    $ad->ad_type = $request->ad_type;
     $ad->payment_method = $request->payment_method;
+
+    if ($request->is_premium) {
+        if (!$request->has('stripe_token')) {
+            return back()->withErrors('Payment token is missing');
+        }
+
+        Stripe::setApiKey(config('services.stripe.secret'));
+
+        try {
+            $charge = Charge::create([
+                'amount' => 10 * 100, // Rs. 500 in paisa
+                'currency' => 'usd',
+                'description' => 'Premium Ad',
+                'source' => $request->stripe_token,
+            ]);
+
+            $ad->is_premium = true;
+            $ad->stripe_payment_id = $charge->id;
+        } catch (\Exception $e) {
+            return back()->withErrors($e->getMessage());
+        }
+    }
 
     if($request->hasFile('image1')){
         $destination='uploads/products/'.$ad->image1;

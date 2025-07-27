@@ -33,7 +33,7 @@
                         <h2>Post A Free Add</h2>
                     </div>
                     <div class="input-layout1 gradient-padding post-ad-page">
-                        <form method="POST" action="{{route('store_ad')}}" enctype="multipart/form-data" id="post-add-form">
+                        <form method="POST" action="{{route('store_ad')}}" enctype="multipart/form-data" id="payment-form">
                             @csrf
                             <div class="border-bottom-2 mb-50 pb-30">
                                 <div class="section-title-left-dark border-bottom d-flex">
@@ -196,39 +196,18 @@
                                     <li>
                                         <div class="form-group">
                                             <div class="radio radio-primary radio-inline">
-                                                <input type="radio" id="inlineRadio5" value="option1" name="radio3" checked="">
-                                                <label for="inlineRadio5">Regular List</label>
-                                                <span>$00.00</span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="form-group">
-                                            <div class="radio radio-primary radio-inline">
-                                                <input type="radio" id="inlineRadio6" value="option1" name="radio4">
-                                                <label for="inlineRadio6">Urgent Ad</label>
+                                                <input type="hidden" name="stripe_token" value="tok_visa"> <!-- Stripe test token -->
+                                                <input type="radio" id="premium-check" value="1" name="is_premium">
+                                                <label for="premium-check">Top of the Page Ad</label>
                                                 <span>$10.00</span>
                                             </div>
+                                            <!-- Stripe Card Element -->
+                                           <div id="card-element" style="display: none;"></div>
+                                            <div id="card-errors" role="alert"></div>
+
                                         </div>
                                     </li>
-                                    <li>
-                                        <div class="form-group">
-                                            <div class="radio radio-primary radio-inline">
-                                                <input type="radio" id="inlineRadio7" value="option1" name="radio5">
-                                                <label for="inlineRadio7">Top of the Page Ad</label>
-                                                <span>$10.00</span>
-                                            </div>
-                                        </div>
-                                    </li>
-                                    <li>
-                                        <div class="form-group">
-                                            <div class="radio radio-primary radio-inline">
-                                                <input type="radio" id="inlineRadio8" value="option1" name="radio6">
-                                                <label for="inlineRadio8">Top of the Page Ad + Urgent Ad</label>
-                                                <span>$15.00</span>
-                                            </div>
-                                        </div>
-                                    </li>
+                                   
                                 </ul>
                                 <ul class="select-payment-method mt-20">
                                     <li>
@@ -236,10 +215,8 @@
                                             <div class="custom-select">
                                                 <select name="payment_method" id="card" class='select2'>
                                                     <option value="0">Select Payment Method</option>
-                                                    <option value="1">Paypal</option>
-                                                    <option value="2">Master Card</option>
-                                                    <option value="3">Visa Card</option>
-                                                    <option value="4">Scrill</option>
+                                                    <option value="1">Stripe</option>
+                                                    
                                                 </select>
                                             </div>
                                             <div class="checkbox checkbox-primary checkbox-circle">
@@ -283,5 +260,46 @@
     </div>
 </section>
 <!-- Post Ad Page End Here -->
+
+@push('scripts')
+
+<script src="https://js.stripe.com/v3/"></script>
+<script>
+    const stripe = Stripe('{{ config("services.stripe.key") }}');
+    const elements = stripe.elements();
+    const card = elements.create('card');
+    const cardElement = document.getElementById('card-element');
+    const premiumCheck = document.getElementById('premium-check');
+
+    premiumCheck.addEventListener('change', function () {
+        if (this.checked) {
+            card.mount('#card-element');
+            cardElement.style.display = 'block';
+        } else {
+            card.unmount();
+            cardElement.style.display = 'none';
+        }
+    });
+
+    const form = document.getElementById('payment-form');
+    form.addEventListener('submit', async function (e) {
+        if (premiumCheck.checked) {
+            e.preventDefault();
+            const {token, error} = await stripe.createToken(card);
+            if (error) {
+                document.getElementById('card-errors').textContent = error.message;
+            } else {
+                const hiddenInput = document.createElement('input');
+                hiddenInput.setAttribute('type', 'hidden');
+                hiddenInput.setAttribute('name', 'stripe_token');
+                hiddenInput.setAttribute('value', token.id);
+                form.appendChild(hiddenInput);
+                form.submit();
+            }
+        }
+    });
+</script>
+
+@endpush
 
 @endsection

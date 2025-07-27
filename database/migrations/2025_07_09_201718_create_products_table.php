@@ -31,7 +31,8 @@ class CreateProductsTable extends Migration
             $table->string('phone');
             $table->boolean('hide_phone')->default(false);
             $table->string('location');
-            $table->string('ad_type'); // Regular, Urgent, etc.
+            $table->boolean('is_premium')->default(false);
+            $table->string('stripe_payment_id')->nullable();
             $table->string('payment_method');
             $table->timestamps();
         });
