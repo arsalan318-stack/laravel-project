@@ -14,10 +14,14 @@
             <div class="d-flex {{ $msg->sender_id == auth()->id() ? 'justify-content-end' : 'justify-content-start' }} mb-2">
                 <div class="{{ $msg->sender_id == auth()->id() ? 'bg-primary text-white' : 'bg-info text-white' }} p-2 rounded">
                     {{ $msg->message }}
+                    <br><small class="text-white">{{ \Carbon\Carbon::parse($msg->created_at)->format('H:i') }}</small>
+                    @if($msg->is_read)
+                    <span class="ml-1">✓✓</span> <!-- read -->
+                @else
+                    <span class="ml-1">✓</span> <!-- sent -->
+                @endif
                 </div>
-                <small class="d-block text-right text-muted" style="font-size: 11px;">
-                    {{ $msg->created_at->format('h:i') }}
-                </small>
+                
             </div>
         @endforeach
     </div>
@@ -45,9 +49,13 @@ $('#sendMessageForm').on('submit', function (e) {
         data: $(this).serialize(),
         success: function (res) {
             const text = res.message.message;
+            const time = res.message.created_at;
             $('#chatBody').append(`
                 <div class="d-flex justify-content-end mb-2">
-                    <div class="bg-primary text-white p-2 rounded">${text}</div>
+                    <div class="bg-primary text-white p-2 rounded">${text}
+                        <br><small class="text-light">${time}</small>
+                        </div>
+        
                 </div>
             `);
             $('#chatBody').scrollTop($('#chatBody')[0].scrollHeight);

@@ -18,13 +18,14 @@ class Messages extends Migration
         
             $table->unsignedBigInteger('conversation_id');
             $table->unsignedBigInteger('sender_id');
-        
+            $table->unsignedBigInteger('receiver_id')->nullable()->after('sender_id');        
             $table->text('message');
             $table->boolean('is_read')->default(false);
             $table->timestamps();
         
             $table->foreign('conversation_id')->references('id')->on('conversations')->onDelete('cascade');
             $table->foreign('sender_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreign('receiver_id')->references('id')->on('users')->onDelete('cascade');
         });
         
     }

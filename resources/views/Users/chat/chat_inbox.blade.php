@@ -33,6 +33,7 @@
                                    data-conversation-id="{{ $conv->id }}">
                                     <div class="d-flex justify-content-between">
                                         <strong>{{ $otherUser->name }}</strong>
+                                        <small>    {{ $conv->latestMessage ? $conv->latestMessage->created_at->format('h:i A') : '' }}</small>
                                         @if($conv->unread_count > 0)
                                             <span class="badge badge-danger">{{ $conv->unread_count }}</span>
                                         @endif
@@ -54,6 +55,7 @@
                                     <div class="d-flex justify-content-between">
                                         <strong>{{ $otherUser->name }}</strong>
                                         <span class="badge badge-danger">{{ $conv->unread_count }}</span>
+                                        <small>    {{ $conv->latestMessage ? $conv->latestMessage->created_at->format('h:i A') : '' }}</small>
                                     </div>
                                     <small>{{ $conv->product->title ?? '' }}</small>
                                 </a>

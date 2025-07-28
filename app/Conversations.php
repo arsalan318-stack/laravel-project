@@ -8,9 +8,10 @@ class Conversations extends Model
 {
     protected $fillable = ['sender_id', 'receiver_id','product_id'];
 
-    public function messages() {
-        return $this->hasMany(Message::class);
-    }
+    public function messages()
+{
+    return $this->hasMany(Message::class, 'conversation_id');
+}
 
     public function sender() {
         return $this->belongsTo(User::class, 'sender_id');
@@ -23,6 +24,11 @@ class Conversations extends Model
     public function product()
 {
     return $this->belongsTo(Product::class);
+}
+
+public function latestMessage()
+{
+    return $this->hasOne(Message::class, 'conversation_id')->orderBy('created_at', 'desc');
 }
 
 }
