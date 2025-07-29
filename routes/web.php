@@ -16,17 +16,6 @@ Route::get('/', function () {
     return view('welcome');
 });
 */
-Route::get('/test-mail', function () {
-   try {
-       Mail::raw('This is a test email from Laravel', function ($message) {
-           $message->to('your_email@gmail.com')
-                   ->subject('Test Email from Laravel');
-       });
-       return '✅ Email sent successfully!';
-   } catch (\Exception $e) {
-       return '❌ Failed: ' . $e->getMessage();
-   }
-});
 Route::middleware(['web'])->group(function () {
 Route::get('/auth/google', 'GoogleController@redirectToGoogle');
 Route::get('/auth/google/callback', 'GoogleController@handleGoogleCallback');
@@ -76,6 +65,9 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/load/{conversationId}', 'ChatController@loadChat')->name('chat.load');
     Route::post('/chat/mark-read', 'ChatController@markAsRead')->name('chat.markAsRead');
     Route::post('/typing', 'ChatController@typing');
+    Route::delete('/message/{id}', 'ChatController@destroy')->name('chat.message.delete');
+    Route::delete('/conversation/{id}', 'ChatController@deleteConversation')->name('conversation.delete');
+
 
     
 });

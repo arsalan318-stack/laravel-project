@@ -110,10 +110,18 @@
                             <div class="{{ $msg->sender_id == auth()->id() ? 'bg-primary text-white' : 'bg-info text-white' }} p-2 rounded">
                                 {{ $msg->message }}
                                 <br><small class="text-white">{{ \Carbon\Carbon::parse($msg->created_at)->format('H:i') }}</small>
+                                @if($msg->sender_id == auth()->id())
+                                <button class="btn btn-sm text-dark bg-primary delete-message" data-id="{{ $msg->id }}">
+                                    <i class="fa fa-trash"></i>
+                                </button>
+                                @endif
+
+                                @if($msg->sender_id ==auth()->id())
                                 @if($msg->is_read)
                                 <span class="ml-1">✓✓</span> <!-- read -->
                             @else
                                 <span class="ml-1">✓</span> <!-- sent -->
+                            @endif
                             @endif
                             </div>
                         </div>
@@ -178,12 +186,15 @@
             data: $(this).serialize(),
             success: function (res) {
                 const time = res.message.created_at;
+                
                 $('#chatBody').append(`
                     <div class="d-flex justify-content-end mb-2">
                         <div class="bg-primary text-white p-2 rounded">
                             ${res.message.message}<br>
                             <small class="text-light">${time}</small>
+                           
                         </div>
+                        <span class="ml-1">✓</span>
                     </div>
                 `);
                 $('#messageInput').val('');
@@ -214,7 +225,6 @@ $('#sendMessageForm input[name="message"]').on('input', function () {
     </script>
 
 <script>
-    var channel = pusher.subscribe('chat.' + '{{ $conversation->id }}');
 
 channel.bind('App\\Events\\TypingEvent', function (data) {
     if (data.userId !== {{ auth()->id() }}) {
@@ -243,4 +253,33 @@ $.ajax({
             }
         });
 </script>
+
+<script>
+    // Setup CSRF token once
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    
+    // Delete button action
+    $('.delete-message').on('click', function () {
+        const messageId = $(this).data('id');
+    
+        if (!confirm('Are you sure to delete this message?')) return;
+    
+        $.ajax({
+            url: '/message/' + messageId,
+            type: 'DELETE',
+            success: function () {
+                $('#message-' + messageId).remove();
+            },
+            error: function (xhr) {
+                alert('Failed to delete. Error: ' + xhr.status);
+            }
+        });
+    });
+    
+        
+        </script>
 @endpush

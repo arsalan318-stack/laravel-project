@@ -10,18 +10,27 @@
     <!-- Messages -->
     <div class="flex-grow-1 p-3" id="chatBody" style="overflow-y: auto; background: #f7f7f7;">
         <div id="typingIndicator" class="text-muted small" style="display: none;">Typing...</div>
-        @foreach($messages as $msg)
-            <div class="d-flex {{ $msg->sender_id == auth()->id() ? 'justify-content-end' : 'justify-content-start' }} mb-2">
-                <div class="{{ $msg->sender_id == auth()->id() ? 'bg-primary text-white' : 'bg-info text-white' }} p-2 rounded">
+        @foreach ($messages as $msg)
+            <div
+                class="d-flex {{ $msg->sender_id == auth()->id() ? 'justify-content-end' : 'justify-content-start' }} mb-2">
+                <div
+                    class="{{ $msg->sender_id == auth()->id() ? 'bg-primary text-white' : 'bg-info text-white' }} p-2 rounded">
                     {{ $msg->message }}
                     <br><small class="text-white">{{ \Carbon\Carbon::parse($msg->created_at)->format('H:i') }}</small>
-                    @if($msg->is_read)
-                    <span class="ml-1">✓✓</span> <!-- read -->
-                @else
-                    <span class="ml-1">✓</span> <!-- sent -->
-                @endif
+                    @if ($msg->sender_id == auth()->id())
+                        <button class="btn btn-sm text-dark bg-primary delete-message" data-id="{{ $msg->id }}">
+                            <i class="fa fa-trash"></i>
+                        </button>
+                    @endif
                 </div>
-                
+                @if ($msg->sender_id == auth()->id())
+                    @if ($msg->is_read)
+                        <span class="ml-1">✓✓</span> <!-- read -->
+                    @else
+                        <span class="ml-1">✓</span> <!-- sent -->
+                    @endif
+                @endif
+
             </div>
         @endforeach
     </div>
@@ -40,63 +49,80 @@
 </div>
 
 <script>
-$('#sendMessageForm').on('submit', function (e) {
-    e.preventDefault();
-
-    $.ajax({
-        url: '{{ route("chat.send") }}',
-        method: 'POST',
-        data: $(this).serialize(),
-        success: function (res) {
-            const text = res.message.message;
-            const time = res.message.created_at;
-            $('#chatBody').append(`
-                <div class="d-flex justify-content-end mb-2">
-                    <div class="bg-primary text-white p-2 rounded">${text}
-                        <br><small class="text-light">${time}</small>
-                        </div>
-        
-                </div>
-            `);
-            $('#chatBody').scrollTop($('#chatBody')[0].scrollHeight);
-            $('input[name="message"]').val('');
-        },
-        error: function (xhr) {
-            console.error("Message send failed:", xhr.status, xhr.responseText);
-            alert('Send failed: ' + xhr.status);
+function initChatPanel() {
+    // CSRF setup
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-});
 
-</script>
+    // Send Message
+    $('#sendMessageForm').on('submit', function(e) {
+        e.preventDefault();
 
-<script>
-    let typingTimer;
-$('#sendMessageForm input[name="message"]').on('input', function () {
-    clearTimeout(typingTimer);
-    typingTimer = setTimeout(() => {
-        $.post('/typing', {
-            _token: '{{ csrf_token() }}',
-            conversation_id: '{{ $conversation->id }}',
+        $.ajax({
+            url: '{{ route('chat.send') }}',
+            method: 'POST',
+            data: $(this).serialize(),
+            success: function(res) {
+                const text = res.message.message;
+                const time = res.message.created_at;
+                const id = res.message.id;
+
+                $('#chatBody').append(`
+                    <div id="message-${id}" class="d-flex justify-content-end mb-2">
+                        <div class="bg-primary text-white p-2 rounded">
+                            ${text}
+                            <br><small class="text-light">${time}</small>
+                            <button class="btn btn-sm text-dark bg-primary delete-message" data-id="${id}">
+                                <i class="fa fa-trash"></i>
+                            </button>
+                        </div>
+                        <span class="ml-1">✓</span>
+                    </div>
+                `);
+                $('#chatBody').scrollTop($('#chatBody')[0].scrollHeight);
+                $('input[name="message"]').val('');
+            }
         });
-    }, 300);
-});
+    });
 
-    </script>
+    // Delete Message (delegated)
+    $('#chatBody').on('click', '.delete-message', function() {
+        const messageId = $(this).data('id');
+        if (!confirm('Are you sure to delete this message?')) return;
 
+        $.ajax({
+            url: '/message/' + messageId,
+            type: 'DELETE',
+            success: function() {
+                $('#message-' + messageId).fadeOut(200, function() {
+                    $(this).remove();
+                });
+            }
+        });
+    });
 
-<script>
-    var channel = pusher.subscribe('chat.' + '{{ $conversation->id }}');
+    // Typing
+    let typingTimer;
+    $('#sendMessageForm input[name="message"]').on('input', function() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(() => {
+            $.post('/typing', {
+                _token: '{{ csrf_token() }}',
+                conversation_id: '{{ $conversation->id }}',
+            });
+        }, 300);
+    });
 
-channel.bind('App\\Events\\TypingEvent', function (data) {
-    if (data.userId !== {{ auth()->id() }}) {
-        $('#typingIndicator').text(data.userName + ' is typing...').show();
+    // Typing Indicator
+    channel.bind('App\\Events\\TypingEvent', function(data) {
+        if (data.userId !== {{ auth()->id() }}) {
+            $('#typingIndicator').text(data.userName + ' is typing...').show();
+            setTimeout(() => $('#typingIndicator').fadeOut(), 2000);
+        }
+    });
+}
 
-        setTimeout(() => {
-            $('#typingIndicator').fadeOut();
-        }, 2000);
-    }
-});
-
-    </script>
-    
+</script>    

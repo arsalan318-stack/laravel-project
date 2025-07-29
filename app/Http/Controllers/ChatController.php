@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Events\MessageSent;
+use App\Events\MessageDeleted;
 use App\Events\TypingEvent;
 use App\Conversations;
 use App\Message;
@@ -160,6 +161,43 @@ public function typing(Request $request)
     ))->toOthers();
 
     return response()->json(['status' => 'typing']);
+}
+
+public function destroy($id)
+{
+    $message = Message::findOrFail($id);
+
+    // Optional: ensure only sender can delete
+    if ($message->sender_id != auth()->id()) {
+        abort(403);
+    }
+    $conversationId = $message->conversation_id;
+    $messageId = $message->id;
+
+
+    $message->delete();
+
+    broadcast(new MessageDeleted($conversationId, $messageId))->toOthers();
+
+    return response()->json(['success' => true]);
+}
+
+public function deleteConversation($id)
+{
+    $conversation = Conversations::findOrFail($id);
+
+    // Optional: only allow the sender or receiver to delete
+    if ($conversation->sender_id !== auth()->id() && $conversation->receiver_id !== auth()->id()) {
+        return response()->json(['error' => 'Unauthorized'], 403);
+    }
+
+    // Delete related messages first (optional if you have foreign keys with cascade)
+    $conversation->messages()->delete();
+
+    // Delete conversation
+    $conversation->delete();
+
+    return response()->json(['success' => true]);
 }
 
 }
