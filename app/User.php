@@ -6,6 +6,7 @@ use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Product;
+use Carbon\Carbon;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
@@ -17,8 +18,10 @@ class User extends Authenticatable implements MustVerifyEmail
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password','phone',
+        'name', 'email', 'password','phone','last_seen',
     ];
+    
+    protected $dates = ['last_seen']; 
 
     /**
      * The attributes that should be hidden for arrays.
@@ -46,6 +49,9 @@ public function favorites()
 {
     return $this->belongsToMany(Product::class, 'favorites')->withTimestamps();
 }
-
+public function isOnline()
+{
+    return $this->last_seen && $this->last_seen->gt(Carbon::now()->subMinutes(2));
+}
 
 }

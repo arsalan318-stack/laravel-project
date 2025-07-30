@@ -18,7 +18,7 @@
                                 <span class="badge badge-danger ml-1" id="unreadCount">
                                     {{ $conversations->where('unread_count', '>', 0)->count() }}
                                 </span>
-                    
+
                             </a>
                         </li>
                     </ul>
@@ -42,9 +42,7 @@
                                         </div>
                                         <small>{{ $conv->product->title ?? '' }}</small>
                                     </a>
-                                    <button class="btn btn-sm btn-danger delete-conversation" data-id="{{ $conv->id }}">
-                                        <i class="fa fa-trash"></i>
-                                    </button>
+                                    
                                 @endforeach
                             </div>
                         </div>
@@ -130,7 +128,7 @@
         });
 
         const authUserId = {{ auth()->id() }};
-        const channel  = pusher.subscribe('user.' + authUserId);
+        const channel = pusher.subscribe('user.' + authUserId);
 
         // 🔁 New message received (update sidebar)
         channel.bind('App\\Events\\MessageSent', function(data) {
@@ -181,38 +179,35 @@
             });
         });
     </script>
-<script>
+    <script>
+        $(document).on('click', '.delete-conversation', function(e) {
+            e.stopPropagation(); // Prevent triggering conversation load
 
-$(document).on('click', '.delete-conversation', function(e) {
-    e.stopPropagation(); // Prevent triggering conversation load
+            const conversationId = $(this).data('id');
 
-    const conversationId = $(this).data('id');
+            if (!confirm('Are you sure you want to delete this conversation?')) return;
 
-    if (!confirm('Are you sure you want to delete this conversation?')) return;
-
-    $.ajax({
-        url: '/conversation/' + conversationId,
-        type: 'DELETE',
-        data: {
-            _token: '{{ csrf_token() }}'
-        },
-        success: function(res) {
-            if (res.success) {
-                $('.conversation-link[data-conversation-id="' + conversationId + '"]').remove();
-                $('#chatWindow').html(`
+            $.ajax({
+                url: '/conversation/' + conversationId,
+                type: 'DELETE',
+                data: {
+                    _token: '{{ csrf_token() }}'
+                },
+                success: function(res) {
+                    if (res.success) {
+                        $('.conversation-link[data-conversation-id="' + conversationId + '"]').remove();
+                        $('#chatWindow').html(`
                     <div class="d-flex justify-content-center align-items-center h-100 text-muted">
                         <i class="fa fa-comments fa-3x mb-3"></i>
                         <p class="ml-3">Select a chat to begin messaging</p>
                     </div>
                 `);
-            }
-        },
-        error: function(err) {
-            alert('Error deleting conversation.');
-        }
-    });
-});
-
-</script>   
-    
+                    }
+                },
+                error: function(err) {
+                    alert('Error deleting conversation.');
+                }
+            });
+        });
+    </script>
 @endpush

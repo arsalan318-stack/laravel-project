@@ -147,7 +147,7 @@
                 <div class="text-center item-mt">
                     <h2 class="title-bold-dark mb-none">Do you have Something to Sell?</h2>
                     <p>Post your ad on classipost.com</p>
-                    <a href="#" class="cp-default-btn direction-img">Post Your Ad Now!</a>
+                    <a href="{{route('post_ad')}}" class="cp-default-btn direction-img">Post Your Ad Now!</a>
                 </div>
             </div>
         </section>
@@ -210,7 +210,7 @@
                             </div>
                             <h3 class="title-bold-dark size-xl">Always FREE Ad Posting</h3>
                             <p>Post as many ads as you like for 30 days without limitations and 100% FREE SUBMIT AD</p>
-                            <a href="#" class="cp-default-btn-lg">Submit Ad</a>
+                            <a href="{{route('post_ad')}}" class="cp-default-btn-lg">Submit Ad</a>
                         </div>
                     </div>
                     <div class="d-flex align-items-center col-lg-2 col-md-12 col-sm-12 col-12">
@@ -225,7 +225,7 @@
                             </div>
                             <h3 class="title-bold-dark size-xl">Featured Ad Posting</h3>
                             <p>Post as many ads as you like for 30 days without limitations and 100% FREE SUBMIT AD</p>
-                            <a href="#" class="cp-default-btn-lg">Submit Ad</a>
+                            <a href="{{route('post_ad')}}" class="cp-default-btn-lg">Submit Ad</a>
                         </div>
                     </div>
                 </div>

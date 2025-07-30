@@ -2,11 +2,42 @@
     <!-- Header -->
     <div class="border-bottom p-3 d-flex justify-content-between">
         <div>
+            <img src="/uploads/profiles/{{ $otherUser->image }}" class="rounded-circle mr-2" style="width: 50px;">
             <strong>{{ $otherUser->name }}</strong><br>
-            <small>{{ $product->title }}</small>
+            @if($otherUser->isOnline())
+            <small> Online</small>
+            @else
+            <small>Last seen {{ $otherUser->last_seen ? $otherUser->last_seen->diffForHumans() : 'a while ago' }}</small>
+            @endif
+        </div>
+        <div class="d-flex flex-column align-items-end">
+            <div class="d-flex align-items-center mb-1">
+                <button class="btn btn-sm btn-light mr-1" title="Report">
+                    <i class="fa fa-flag text-danger"></i>
+                </button>
+                <a href="tel:{{ $conversation->product->user->phone }}" class="btn btn-sm btn-light mr-1"><i class="fa fa-phone text-success"></i></a>
+                <a href="sms:{{ $conversation->product->user->phone }}" class="btn btn-sm btn-light mr-1"><i class="fa fa-comment text-primary"></i></a>
+                <div class="dropdown">
+                    <button class="btn btn-sm btn-light" data-toggle="dropdown">
+                        <i class="fa fa-ellipsis-v text-dark"></i>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right">
+                        <a class="dropdown-item text-danger delete-conversation" data-id="{{$conversation->id}}" href="#"><i class="fa fa-trash mr-2"></i> Delete Chat</a>
+                        <a class="dropdown-item" href="#"><i class="fa fa-flag mr-2 text-danger"></i> Report Chat</a>
+                    </div>
+                </div>
+            </div>
+            <a href="{{ route('get_product_details', $conversation->product->id) }}" class="btn btn-sm btn-outline-primary">View Ad</a>
         </div>
     </div>
-
+ <!-- Ad Info -->
+ <div class="p-2 border-bottom d-flex align-items-center">
+    <img src="/uploads/products/{{ $conversation->product->image1 }}" class="mr-3" style="width: 50px; border-radius: 8px;">
+    <div>
+        <strong>{{ $product->title }}</strong><br>
+        <span class="text-muted">Rs {{ $product->price }}</span>
+    </div>
+</div>
     <!-- Messages -->
     <div class="flex-grow-1 p-3" id="chatBody" style="overflow-y: auto; background: #f7f7f7;">
         <div id="typingIndicator" class="text-muted small" style="display: none;">Typing...</div>

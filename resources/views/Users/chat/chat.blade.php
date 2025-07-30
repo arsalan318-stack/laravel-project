@@ -36,6 +36,7 @@
                                     <span class="badge badge-danger float-right">{{ $conv->unread_count }}</span>
                                 @endif
                             </a>
+                            
                         @endforeach
                     </div>
 
@@ -68,7 +69,11 @@
                     <img src="/uploads/profiles/{{ $conversation->product->user->image }}" class="rounded-circle mr-2" style="width: 50px;">
                     <div>
                         <strong>{{ $conversation->product->user->name }}</strong><br>
-                        <small>Last active: 8 hrs ago</small>
+                        @if($conversation->product->user->is_online)
+                        <small>🟢 Online</small>
+                        @else
+                        <small>Last Seen {{ $conversation->product->user->last_seen ? $conversation->product->user->last_seen->diffForHumans() : 'a while ago' }}</small>
+                      @endif
                     </div>
                 </div>
                 <div class="d-flex flex-column align-items-end">
@@ -83,7 +88,7 @@
                                 <i class="fa fa-ellipsis-v text-dark"></i>
                             </button>
                             <div class="dropdown-menu dropdown-menu-right">
-                                <a class="dropdown-item text-danger" href="#"><i class="fa fa-trash mr-2"></i> Delete Chat</a>
+                                <a class="dropdown-item text-danger delete-conversation" data-id="{{$conversation->id}}" href="#"><i class="fa fa-trash mr-2"></i> Delete Chat</a>
                                 <a class="dropdown-item" href="#"><i class="fa fa-flag mr-2 text-danger"></i> Report Chat</a>
                             </div>
                         </div>
@@ -282,4 +287,36 @@ $.ajax({
     
         
         </script>
+
+<script>
+    $(document).on('click', '.delete-conversation', function(e) {
+        e.stopPropagation(); // Prevent triggering conversation load
+
+        const conversationId = $(this).data('id');
+
+        if (!confirm('Are you sure you want to delete this conversation?')) return;
+
+        $.ajax({
+            url: '/conversation/' + conversationId,
+            type: 'DELETE',
+            data: {
+                _token: '{{ csrf_token() }}'
+            },
+            success: function(res) {
+                if (res.success) {
+                    $('.conversation-link[data-conversation-id="' + conversationId + '"]').remove();
+                    $('#chatWindow').html(`
+                <div class="d-flex justify-content-center align-items-center h-100 text-muted">
+                    <i class="fa fa-comments fa-3x mb-3"></i>
+                    <p class="ml-3">Select a chat to begin messaging</p>
+                </div>
+            `);
+                }
+            },
+            error: function(err) {
+                alert('Error deleting conversation.');
+            }
+        });
+    });
+</script>
 @endpush
